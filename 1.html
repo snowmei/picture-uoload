@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>图片预览</title>
+	    <style>
+	    	*{
+	    		margin:0;
+	    		padding:0;
+	    	}
+	    	ul li{
+	    		list-style: none;
+	    	}
+	    	#zhezhao{
+	    		width:100%;
+	    		height:100%;
+	    		position:fixed;
+	    		top:0;
+	    		left:0;
+	    		right:0;
+	    		bottom: 0;
+	    		background:rgba(0,0,0,1);
+	    		z-index: 222;
+	    		display: none;
+	    	}
+	    	.selectKuang{
+	    		width:450px;
+	    		height:400px;
+	    		border:1px solid #ccc;
+	    		position:absolute;
+	    		top:0;
+	    		left:0;
+	    		right:0;
+	    		bottom: 0;
+	    		margin:auto;
+	    	}
+	    	#tab .tabList li{
+	    		float:left;
+	    		background:#efefef;
+	    		border:1px solid #CCCCCC;
+                width:100px;
+                height:30px;
+                text-align: center;
+                line-height: 30px;
+                margin-top:-10px;
+                cursor: pointer;
+	    	}
+	        #tab .tabCon{
+	        	clear: both;
+	        	width:100%;
+	        	height: 80%;
+	        	margin-top: 40px;
+	        }
+	    	#tab .tabCon li{
+	    		padding:10px;
+				position:absolute;
+				opacity:0;
+				filter:alpha(opacity=0);
+	    	}
+	    	#tab .tabList li.cur{
+	    		border-bottom: none;
+	    		background: #fff;
+	    	}
+	    	#tab .tabCon li.cur{
+	    		opacity:0;
+				filter:alpha(opacity=100);
+	    	}
+	    	.picContainer{
+	    		width:350px;
+	    		height:150px;
+	    		margin:auto;
+	    		text-align: center;
+	    		line-height:150px ;
+	    		border:1px solid #ccc;
+	    		filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=image);
+	    	}
+	    	.file-btn{
+	    		width:70px;
+	    		height:23px;
+	    		background: #f00;
+	    		margin-bottom: 20px;
+	    		text-align: center;
+	    		color:#fff;
+	    		position: relative;
+				overflow: hidden;
+	    	}
+	    	.em-btn{
+	    		position: absolute;
+			    font-size: 100px;
+			    right: 0;
+			    top: 0;
+			    opacity: 0;
+			    filter: alpha(opacity=0);
+			    cursor:pointer;
+	    	}
+	    	.picInfo{
+	    		color:#333;
+	    		margin-bottom: 10px;
+	    	}
+	    	.com-btn{
+	    		margin-top:80px;
+	    		margin-left: 300px;
+	    	}
+	    	.com-btn button{
+	    		width:60px;
+	    	}
+	    	/*正文内容*/
+	    	.selPic{
+	    		width:200px;
+	    		height: 200px;
+	    		border: 4px dashed #00f;
+	    		position: relative;
+	    	}
+	    	.picRec{
+	    		width:200px;
+	    		height:150px;
+	    		text-align: center;
+	    		background:#ccc;
+	    		filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=image);
+	    	}
+	    	.changeBtn{
+	    		display: none;
+	    	}
+	    </style>
+	</head>
+	<body>
+		<div id="zhezhao">
+			<div class="selectKuang" id="tab">
+				<ul class="tabList">
+					<li>在线图片</li>
+					<li>上传图片</li>
+				</ul>
+				<ul class="tabCon">
+					<li>
+						在线图片
+					</li>
+					<li>
+						<p class="file-btn">
+						   <input type="file" name="Picture" class="em-btn" accept="image/jpeg,image/x-png,image/png,image/gif" data-img-preview="previewPicture"/>上传
+					    </p>
+					    <p class='picInfo'>
+					    	1.图片大小不能超过5M &nbsp;&nbsp;&nbsp;&nbsp;2.支持格式jpg、png、gif
+					    </p>
+					    <p class="picContainer" id="previewPicture">缩略图</p>
+					    <div class="com-btn">
+						    <button type="button" id="cancle">取消</button>
+						    <button type="button" id="sure">确定</button>
+						</div>
+					</li>	
+				</ul>
+			</div>
+		</div>
+		<div class="selPic">
+			<p class="picRec" id="picture">缩略图</p>
+			<button type="button" class="up">上传</button>
+			<div class='changeBtn'>
+				<button type="button">替换</button>
+				<button type="button">移除</button>
+			</div>
+		</div>
+	</body>
+	<script src="js/jquery-1.11.0.js"></script> 
+<!--	<script src="js/pic.js"></script> -->
+	<script>
+		/*tab切换卡*/
+		window.onload = function() {
+		    var oDiv = document.getElementById("tab");
+		    var oLi = oDiv.getElementsByTagName("ul")[0].getElementsByTagName("li");
+		    var aCon = oDiv.getElementsByTagName("ul")[1].getElementsByTagName("li");
+		    var timer = null;
+		    for (var i = 0; i < oLi.length; i++) {
+		        oLi[i].index = i;
+		        oLi[i].onclick = function() {
+		            show(this.index);
+		        }
+		    }
+		    function show(a) {
+		        index = a;
+		        var alpha = 0;
+		        for (var j = 0; j < oLi.length; j++) {
+		            oLi[j].className = "";
+		            aCon[j].className = "";
+		            aCon[j].style.opacity = 0;
+		            aCon[j].style.filter = "alpha(opacity=0)";
+		        }
+		        oLi[index].className = "cur";
+		        clearInterval(timer);
+		        timer = setInterval(function() {
+		            alpha += 2;
+		            alpha > 100 && (alpha = 100);
+		            aCon[index].style.opacity = alpha / 100;
+		            aCon[index].style.filter = "alpha(opacity=" + alpha + ")";
+		            alpha == 100 && clearInterval(timer);
+		        },
+		        5)
+		    }
+		}
+		//jxFileUpload
+		$(document).ready(function() {
+		    window.previewLocalImageFile = function(source, previewContainer) {
+		       /* console.info(previewContainer.attr("id"));
+		        console.info(source.files[0]);*/
+		        if (source.files) {
+		            if(source.files[0]) {
+		                $(source).data("has-file", true);
+		                previewContainer.html("");
+		                var img = document.createElement("img");
+		                previewContainer.append(img);
+		                img.onload = function() {
+		                    img.style.width = "100%";
+		                    img.style.height = "100%";
+		                }
+		                var reader = new FileReader();
+		                reader.onload = function(evt) {
+		                    img.src = evt.target.result;
+		                }
+		                reader.readAsDataURL(source.files[0]);
+		                  /*点击确定按钮，把图片传到页面容器内*/
+		                $("#sure").click(function(){
+			           	   $("#zhezhao").hide();
+			           	   $("#picture").html("");
+			           	   $("#picture").append(img);
+			           	   $(".up").hide();
+			           	   $(".changeBtn").show();
+				        });
+				        /*取消按钮，清空图片容器*/
+				        $("#cancle").click(function(){
+				           previewContainer.html("");
+				           $("#zhezhao").hide();
+				        })
+		            }
+		        } else { //兼容IE
+		            source.select();
+		            source.blur();
+		            var src = document.selection.createRange().text;
+		            if(src) {
+		                $(source).data("has-file", true);
+		                previewContainer.html("");
+		                var img = document.createElement("img");
+		                previewContainer.append(img);
+		
+		                var sFilter = 'filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale)';
+		                img.filters.item('DXImageTransform.Microsoft.AlphaImageLoader').src = src;
+		                previewContainer.html("<div style='width:100%;height:100%;" + sFilter + src + "\"'></div>");
+		                  /*点击确定按钮，把图片传到页面容器内*/
+		                $("#sure").click(function(){
+			           	   $("#zhezhao").hide();
+			           	   $("#picture").html("");
+			           	   $("#picture").html("<div style='width:100%;height:100%;" + sFilter + src + "\"'></div>");
+				           $(".up").hide();
+				           $(".changeBtn").show();
+		                });
+				        /*取消按钮，清空图片容器*/
+				        $("#cancle").click(function(){
+				           previewContainer.html("");
+				           $("#zhezhao").hide();
+				        })
+		            }
+		        }
+		    };
+		
+		    function _init() {
+		        $("input[type='file']").each(function() {
+		            var containerId = $(this).data("img-preview");
+		            if (containerId) {
+		                var $this = this;
+		                console.info($this.name);
+		                var previewContainer = $("#" + containerId);
+		                previewContainer.click(function() {
+		                    $this.click();
+		                });
+		                $($this).change(function() {
+		                    previewLocalImageFile(this, previewContainer);
+		                });
+		            }
+		        });
+		    }
+		    _init();
+		});
+		/*弹窗出现*/
+		$(function(){
+           $(".selPic .up,.changeBtn button:nth-child(1)").click(function(){
+           	    $("#zhezhao").show();
+           })
+           $(".changeBtn button:nth-child(2)").click(function(){
+           	    $("#picture").html("");
+           })
+           $("#cancle,#sure").click(function(){
+                $("#zhezhao").hide();
+           })
+		})
+	</script>
+</html>
